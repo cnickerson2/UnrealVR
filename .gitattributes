@@ -1,1 +1,1 @@
-**/[Cc]ontent/**/[Ss]tatic/** filter=lfs diff=lfs merge=lfs -text
+**/[Cc]ontent/**/[Aa]rchVis_Assets/** filter=lfs diff=lfs merge=lfs -text
