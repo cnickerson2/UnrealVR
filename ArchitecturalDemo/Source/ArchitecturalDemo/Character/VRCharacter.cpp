@@ -10,8 +10,13 @@ AVRCharacter::AVRCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
+    VRRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VRRoot"));
+    VRRoot->SetupAttachment(GetRootComponent());
+
+
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-    CameraComponent->SetupAttachment(RootComponent);
+    CameraComponent->SetupAttachment(VRRoot);
 
 }
 

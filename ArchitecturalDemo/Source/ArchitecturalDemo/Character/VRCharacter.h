@@ -34,4 +34,7 @@ private:
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     class UCameraComponent* CameraComponent;
+
+    UPROPERTY(VisibleAnywhere, Category = "Camera")
+    class USceneComponent* VRRoot;
 };
