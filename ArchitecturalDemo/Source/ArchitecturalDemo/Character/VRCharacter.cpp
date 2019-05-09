@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "NavigationSystem.h"
 
 // Sets default values
 AVRCharacter::AVRCharacter()
@@ -73,31 +74,23 @@ void AVRCharacter::MoveRight(float throttle)
 
 void AVRCharacter::UpdateDestinationMarker()
 {
-    FHitResult OutHitResult;
-    bool bHit = GetWorld()->LineTraceSingleByChannel
-    (
-        OutHitResult,
-        CameraComponent->GetComponentLocation(),
-        CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * TeleportDistance,
-        ECC_Visibility
-    );
+    FVector TeleportLocation;
 
-    DestinationMarker->SetVisibility(bHit);
-
-    if (bHit)
-    {
-        DestinationMarker->SetWorldLocation(OutHitResult.Location);
+    if (FindTeleportDestination(TeleportLocation))
+    { 
+        DestinationMarker->SetWorldLocation(TeleportLocation);
+        DestinationMarker->SetVisibility(true);
     }
+    else
+    {
+        DestinationMarker->SetVisibility(false);
+    }
+
 }
 
 void AVRCharacter::BeginTeleport()
 {
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
-
-    if(PlayerController != nullptr)
-    {
-        PlayerController->PlayerCameraManager->StartCameraFade(0, 1, FadeDuration, FLinearColor::Black,false,true);
-    }
+    StartFade(0, 1);
 
     FTimerHandle Handle;
     GetWorldTimerManager().SetTimer(Handle, this, &AVRCharacter::FinishTeleport, FadeDuration);
@@ -107,10 +100,50 @@ void AVRCharacter::FinishTeleport()
 {
     SetActorLocation(DestinationMarker->GetComponentLocation() + GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * GetActorUpVector());
 
+    StartFade(1, 0);
+}
+
+bool AVRCharacter::FindTeleportDestination(FVector & OutLocation)
+{
+    FHitResult OutHitResult;
+    bool bHit = GetWorld()->LineTraceSingleByChannel
+    (
+        OutHitResult,
+        CameraComponent->GetComponentLocation(),
+        CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * TeleportDistance,
+        ECC_Visibility
+    );
+
+    if(!bHit)
+    {
+        return false;
+    }
+
+    FNavLocation NavLocation;
+
+    bool bOnNavMesh = UNavigationSystemV1::GetNavigationSystem(GetWorld())->ProjectPointToNavigation
+    (
+        OutHitResult.Location,
+        NavLocation,
+        TeleportProjectionExtent
+    );
+
+    if (!bOnNavMesh)
+    {
+        return false;
+    }
+
+    OutLocation = NavLocation.Location;
+
+    return true;
+}
+
+void AVRCharacter::StartFade(float FromAlpha, float ToAlpha)
+{
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
 
     if (PlayerController != nullptr)
     {
-        PlayerController->PlayerCameraManager->StartCameraFade(1, 0, FadeDuration, FLinearColor::Black, false, true);
+        PlayerController->PlayerCameraManager->StartCameraFade(FromAlpha, ToAlpha, FadeDuration, FLinearColor::Black, false, true);
     }
 }

@@ -35,6 +35,10 @@ private:
     void UpdateDestinationMarker();
     void BeginTeleport();
     void FinishTeleport();
+    bool FindTeleportDestination(FVector & OutLocation);
+
+    void StartFade(float FromAlpha, float ToAlpha);
+
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     class UCameraComponent* CameraComponent;
@@ -51,4 +55,7 @@ protected:
     // How long the teleport fade should last in seconds.
     UPROPERTY(EditDefaultsOnly, Category = "Camera")
     float FadeDuration = 1;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Movement")
+    FVector TeleportProjectionExtent = FVector(100, 100, 100);
 };
