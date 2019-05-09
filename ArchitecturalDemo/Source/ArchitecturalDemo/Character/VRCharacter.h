@@ -22,6 +22,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+    
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -31,10 +32,18 @@ private:
     void MoveForward(float throttle);
     void MoveRight(float throttle);
 
+    void UpdateDestinationMarker();
+
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     class UCameraComponent* CameraComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     class USceneComponent* VRRoot;
+
+    UPROPERTY(VisibleAnywhere, Category = "Movement")
+    class UStaticMeshComponent* DestinationMarker;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Movement")
+    float TeleportDistance = 1000; // 10 metres?
 };
