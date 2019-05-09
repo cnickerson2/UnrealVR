@@ -33,7 +33,8 @@ private:
     void MoveRight(float throttle);
 
     void UpdateDestinationMarker();
-
+    void BeginTeleport();
+    void FinishTeleport();
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     class UCameraComponent* CameraComponent;
@@ -46,4 +47,8 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
     float TeleportDistance = 1000; // 10 metres?
+
+    // How long the teleport fade should last in seconds.
+    UPROPERTY(EditDefaultsOnly, Category = "Camera")
+    float FadeDuration = 1;
 };
