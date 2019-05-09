@@ -29,6 +29,8 @@ AVRCharacter::AVRCharacter()
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+    DestinationMarker->SetVisibility(false); //ensure it is gone until it hits something
 	
 }
 
