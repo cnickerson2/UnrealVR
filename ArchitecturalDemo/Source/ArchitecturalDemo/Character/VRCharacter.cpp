@@ -14,8 +14,8 @@
 // Sets default values
 AVRCharacter::AVRCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
 
     VRRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VRRoot"));
@@ -31,33 +31,36 @@ AVRCharacter::AVRCharacter()
     PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
     PostProcessComponent->SetupAttachment(GetRootComponent());
 
-    
+
 }
 
 // Called when the game starts or when spawned
 void AVRCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
     DestinationMarker->SetVisibility(false); //ensure it is gone until it hits something
-	
-    if (BlinderMaterialBase != nullptr)
-    {
-        DynamicMaterialInstance = UMaterialInstanceDynamic::Create(BlinderMaterialBase, this);
-        DynamicMaterialInstance->SetScalarParameterValue(TEXT("Radius"), BlinderRadius);
 
-        PostProcessComponent->AddOrUpdateBlendable(DynamicMaterialInstance);
-    }
-    else
+    UpdateBlinders();
+}
+
+void AVRCharacter::UpdateBlinders()
+{
+    if (BlinderMaterialBase == nullptr)
     {
         UE_LOG(LogTemp, Error, TEXT("[%s] : BlinderMaterialBase was not set"), *GetName());
+        return;
     }
+    DynamicMaterialInstance = UMaterialInstanceDynamic::Create(BlinderMaterialBase, this);
+    DynamicMaterialInstance->SetScalarParameterValue(TEXT("Radius"), 1.0);
+
+    PostProcessComponent->AddOrUpdateBlendable(DynamicMaterialInstance);
 }
 
 // Called every frame
 void AVRCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
     FVector NewCameraOffset = CameraComponent->GetComponentLocation() - GetActorLocation();
     NewCameraOffset.Z = 0;
@@ -65,12 +68,24 @@ void AVRCharacter::Tick(float DeltaTime)
     VRRoot->AddWorldOffset(-NewCameraOffset);
 
     UpdateDestinationMarker();
+
+    if (RadiusVsVelocity != nullptr)
+    {
+        float VelocityOfCharacter = GetVelocity().Size();
+        float Radius = RadiusVsVelocity->GetFloatValue(VelocityOfCharacter);
+
+        DynamicMaterialInstance->SetScalarParameterValue(TEXT("Radius"), Radius);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("[%s] : RadiusVsVelocity Curve Float was not set"), *GetName());
+    }
 }
 
 // Called to bind functionality to input
 void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AVRCharacter::MoveForward);
 
@@ -94,7 +109,7 @@ void AVRCharacter::UpdateDestinationMarker()
     FVector TeleportLocation;
 
     if (FindTeleportDestination(TeleportLocation))
-    { 
+    {
         DestinationMarker->SetWorldLocation(TeleportLocation);
         DestinationMarker->SetVisibility(true);
     }
@@ -131,7 +146,7 @@ bool AVRCharacter::FindTeleportDestination(FVector & OutLocation)
         ECC_Visibility
     );
 
-    if(!bHit)
+    if (!bHit)
     {
         return false;
     }

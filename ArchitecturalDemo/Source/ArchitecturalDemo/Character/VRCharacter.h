@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
     
@@ -36,6 +36,7 @@ private:
     void BeginTeleport();
     void FinishTeleport();
     bool FindTeleportDestination(FVector & OutLocation);
+    void UpdateBlinders();
 
     void StartFade(float FromAlpha, float ToAlpha);
 
@@ -65,9 +66,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Camera")
     class UMaterialInterface * BlinderMaterialBase;
 
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    float BlinderRadius = 0.5f;
-
     UPROPERTY()
     class UMaterialInstanceDynamic * DynamicMaterialInstance;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Camera")
+    class UCurveFloat * RadiusVsVelocity;
 };
