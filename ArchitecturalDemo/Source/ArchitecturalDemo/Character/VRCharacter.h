@@ -49,6 +49,9 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Movement")
     class UStaticMeshComponent* DestinationMarker;
 
+    UPROPERTY(VisibleAnywhere, Category = "Camera")
+    class UPostProcessComponent * PostProcessComponent;
+
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
     float TeleportDistance = 1000; // 10 metres?
 
@@ -58,4 +61,13 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Movement")
     FVector TeleportProjectionExtent = FVector(100, 100, 100);
+
+    UPROPERTY(EditDefaultsOnly, Category = "Camera")
+    class UMaterialInterface * BlinderMaterialBase;
+
+    UPROPERTY(EditAnywhere, Category = "Camera")
+    float BlinderRadius = 0.5f;
+
+    UPROPERTY()
+    class UMaterialInstanceDynamic * DynamicMaterialInstance;
 };

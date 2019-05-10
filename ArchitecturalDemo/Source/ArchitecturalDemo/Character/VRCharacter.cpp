@@ -8,6 +8,8 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 #include "NavigationSystem.h"
+#include "Components/PostProcessComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 AVRCharacter::AVRCharacter()
@@ -26,6 +28,10 @@ AVRCharacter::AVRCharacter()
     DestinationMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Destination Marker"));
     DestinationMarker->SetupAttachment(GetRootComponent());
 
+    PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
+    PostProcessComponent->SetupAttachment(GetRootComponent());
+
+    
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +41,17 @@ void AVRCharacter::BeginPlay()
 
     DestinationMarker->SetVisibility(false); //ensure it is gone until it hits something
 	
+    if (BlinderMaterialBase != nullptr)
+    {
+        DynamicMaterialInstance = UMaterialInstanceDynamic::Create(BlinderMaterialBase, this);
+        DynamicMaterialInstance->SetScalarParameterValue(TEXT("Radius"), BlinderRadius);
+
+        PostProcessComponent->AddOrUpdateBlendable(DynamicMaterialInstance);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("[%s] : BlinderMaterialBase was not set"), *GetName());
+    }
 }
 
 // Called every frame
